@@ -1,0 +1,87 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set plot style
+sns.set(style="whitegrid")
+plt.rcParams['figure.figsize'] = (10, 6)
+
+# Load dataset
+df = pd.read_csv("Telco-Customer-Churn.csv")  # Replace with your path
+
+# Preview data
+print("First 5 Rows:")
+print(df.head())
+print("\nDataset Info:")
+print(df.info())
+
+# ----------------------------
+# Data Cleaning
+# ----------------------------
+
+# Convert 'TotalCharges' to numeric (some might be blank)
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+
+# Handle missing values
+print("\nMissing Values Before:")
+print(df.isnull().sum())
+
+df = df.dropna()  # Drop rows with missing values
+
+print("\nMissing Values After:")
+print(df.isnull().sum())
+
+# Drop customerID (not useful for modeling)
+df.drop("customerID", axis=1, inplace=True)
+
+# Convert 'Churn' to binary
+df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+
+# ----------------------------
+# Exploratory Data Analysis (EDA)
+# ----------------------------
+
+# 1. Churn Count
+sns.countplot(x='Churn', data=df)
+plt.title("Churn Distribution")
+plt.xticks([0, 1], ['No', 'Yes'])
+plt.show()
+
+# 2. Churn by Gender
+sns.countplot(x='gender', hue='Churn', data=df)
+plt.title("Churn by Gender")
+plt.show()
+
+# 3. Churn by Contract Type
+sns.countplot(x='Contract', hue='Churn', data=df)
+plt.title("Churn by Contract Type")
+plt.xticks(rotation=15)
+plt.show()
+
+# 4. Monthly Charges vs Churn
+sns.boxplot(x='Churn', y='MonthlyCharges', data=df)
+plt.title("Monthly Charges vs Churn")
+plt.show()
+
+# 5. Tenure Distribution
+sns.histplot(df['tenure'], bins=30, kde=True)
+plt.title("Tenure Distribution")
+plt.show()
+
+# 6. Churn vs Internet Service
+sns.countplot(x='InternetService', hue='Churn', data=df)
+plt.title("Churn by Internet Service Type")
+plt.show()
+
+# ----------------------------
+# Correlation Heatmap (Numerical Features)
+# ----------------------------
+numerical = df.select_dtypes(include=['int64', 'float64'])
+corr = numerical.corr()
+
+plt.figure(figsize=(8,6))
+sns.heatmap(corr, annot=True, cmap="coolwarm")
+plt.title("Correlation Heatmap")
+plt.show()
